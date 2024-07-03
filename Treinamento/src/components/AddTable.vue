@@ -1,12 +1,7 @@
 <template>
   <form class="container mt-4" @submit.prevent="handleSubmit">
     <div class="mb-3 form-check">
-      <input
-        type="checkbox"
-        id="isActive"
-        v-model="checkedNames"
-        class="form-check-input"
-      />
+      <input type="checkbox" id="isActive" v-model="checkedNames" class="form-check-input" />
       <label for="isActive" class="form-check-label">Is Active</label>
     </div>
 
@@ -30,30 +25,41 @@
 </template>
 
 <script setup>
-  import { ref } from 'vue';
-  import { useRouter } from 'vue-router';
-  import axios from "axios";
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import axios from 'axios'
 
-  const router = useRouter();
-  const checkedNames = ref(false);
-  const age = ref(0);
-  const eyeColor = ref('');
-  const name = ref('');
+const router = useRouter()
+const checkedNames = ref(false)
+const age = ref(0)
+const eyeColor = ref('')
+const name = ref('')
 
-  const handleSubmit = () => {
-    console.log('Formulário submetido com sucesso!');
-    console.log('Is Active:', checkedNames.value);
-    console.log('Age:', age.value);
-    console.log('Eye Color:', eyeColor.value);
-    console.log('Name:', name.value);
-    resetForm();
-    router.push('/table');
-  };
+const handleSubmit = async () => {
+  console.log('Formulário submetido com sucesso!')
+  console.log('Is Active:', checkedNames.value)
+  console.log('Age:', age.value)
+  console.log('Eye Color:', eyeColor.value)
+  console.log('Name:', name.value)
 
   const resetForm = () => {
-    checkedNames.value = false;
-    age.value = 0;
-    eyeColor.value = '';
-    name.value = '';
-  };
+    checkedNames.value = false
+    age.value = 0
+    eyeColor.value = ''
+    name.value = ''
+  }
+
+  try {
+    await axios.post('https://jsonplaceholder.typicode.com/posts', {
+      isActive: checkedNames.value,
+      age: age.value,
+      eyeColor: eyeColor.value,
+      name: name.value
+    })
+    resetForm()
+    router.push('/table')
+  } catch (error) {
+    console.error('Erro ao enviar formulário:', error)
+  }
+}
 </script>
