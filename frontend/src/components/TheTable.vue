@@ -6,7 +6,6 @@ import {
 } from 'consulte-framework-vue/components/grid'
 import { defineComponent } from 'vue'
 import axios from 'axios'
-import router from '@/router'
 
 // User Model
 class UserModel {
@@ -84,13 +83,16 @@ export default defineComponent({
         console.error('Error fetching users:', error)
       }
     },
-    async editar(id: number) {},
+    async editar(user: UserModel) {
+      localStorage.setItem('userToEdit', JSON.stringify(user))
+      this.$router.push('/add')
+    },
 
     async excluir(id: number) {
       try {
         const api = axios
         console.log(id)
-        await api.delete('https://localhost:7159/api/user/' +  id )
+        await api.delete('https://localhost:7159/api/user/' + id)
         location.reload()
       } catch (error) {
         console.error('Error fetching users:', error)
@@ -118,7 +120,7 @@ export default defineComponent({
           class="btn btn-danger btn-round rounded-pill btn-sm btn-icon"
           @click="excluir(context.row.id)"
         >
-          <i class="uil uil-trash-alt"></i>
+          <i>X</i>
         </button>
         <button
           type="button"
@@ -126,8 +128,9 @@ export default defineComponent({
           class="btn btn-primary btn-round rounded-pill btn-sm btn-icon"
           data-original-title="Refresh"
           title=""
+          @click="editar(context.row)"
         >
-          <i class="uil uil-edit"></i>
+          <i>Editar</i>
         </button>
       </template>
     </ConsulteGrid>

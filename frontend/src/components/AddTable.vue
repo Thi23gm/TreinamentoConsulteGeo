@@ -20,48 +20,78 @@
       <input type="text" id="name" v-model="name" class="form-control" />
     </div>
 
-    <button type="submit" class="btn btn-primary">Submit</button>
+    <button type="submit" class="btn btn-success btn-round rounded-pill btn-sm btn-icon">
+      Submit
+    </button>
+
   </form>
 </template>
 
-<script setup>
-import { ref } from 'vue'
+<script lang="ts">
+import { ref, defineComponent, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 
-const router = useRouter()
+export default defineComponent({
+  name: 'AddUser',
+  setup() {
+    const router = useRouter()
+    const isActive = ref(false)
+    const age = ref(0)
+    const eyeColor = ref('')
+    const name = ref('')
+    const userId = ref<number | null>(null)
 
-//Refs for form inputs
-const isActive = ref(false)
-const age = ref(0)
-const eyeColor = ref('')
-const name = ref('')
-
-//Handle form submission
-const handleSubmit = async () => {
-  const resetForm = () => {
-    isActive.value = false
-    age.value = 0
-    eyeColor.value = ''
-    name.value = ''
-  }
-
-  try {
-    //Post data form
-    await axios.post('https://localhost:7159/api/user', {
-      isActive: isActive.value,
-      age: age.value,
-      eyeColor: eyeColor.value,
-      name: name.value
+    onMounted(() => {
+      const userToEdit = localStorage.getItem('userToEdit')
+      if (userToEdit) {
+        const user = JSON.parse(userToEdit)
+        userId.value = user.id
+        isActive.value = user.isActive
+        age.value = user.age
+        eyeColor.value = user.eyeColor
+        name.value = user.name
+      }
     })
 
-    //Reset data form
-    resetForm()
+    const handleSubmit = async () => {
+      const user = {
+        isActive: isActive.value,
+        age: age.value,
+        eyeColor: eyeColor.value,
+        name: name.value
+      }
 
-    //Router back to table
-    router.push('/table')
-  } catch (error) {
-    console.error('Error submitting form:', error)
+      try {
+        if (userId.value !== null) {
+          // Update existing user
+          await axios.put(`https://localhost:7159/api/user/${userId.value}`, user)
+        } else {
+          // Create new user
+          await axios.post('https://localhost:7159/api/user', user)
+        }
+
+        // Clear form and localStorage
+        isActive.value = false
+        age.value = 0
+        eyeColor.value = ''
+        name.value = ''
+        localStorage.removeItem('userToEdit')
+
+        // Navigate back to table
+        router.push('/table')
+      } catch (error) {
+        console.error('Error submitting form:', error)
+      }
+    }
+
+    return {
+      isActive,
+      age,
+      eyeColor,
+      name,
+      handleSubmit
+    }
   }
-}
+})
 </script>
