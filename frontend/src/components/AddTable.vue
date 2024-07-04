@@ -65,7 +65,9 @@ export default defineComponent({
       try {
         if (userId.value !== null) {
           // Update existing user
-          await axios.put(`https://localhost:7159/api/user/${userId.value}`, user)
+          await axios.put('https://localhost:7159/api/user/' + userId.value, user)
+          userId.value = null
+          localStorage.clear()
         } else {
           // Create new user
           await axios.post('https://localhost:7159/api/user', user)
